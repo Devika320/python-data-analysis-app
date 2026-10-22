@@ -1,0 +1,57 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import requests
+# --- Part 1: NumPy & Pandas Data Manipulation ---
+def analyze_sample_dataset():
+    # Creating a sample dataset
+    data = {
+        "Department": ["IT", "HR", "IT", "Finance", "HR", "Finance", "IT", "HR"],
+        "Employee": ["Alice", "Bob", "Charlie", "David", "Eva", "Frank", "Grace", "Hannah"],
+        "Salary": [75000, 50000, 85000, 65000, 52000, 70000, 90000, np.nan], # contains a missing value
+        "Experience_Yrs": [3, 2, 5, 4, 3, 6, 7, 1]
+    }
+    df = pd.DataFrame(data)
+    print("--- Initial DataFrame ---")
+    print(df)
+    # Data Cleaning: Fill missing salary with median
+    median_salary = df["Salary"].median()
+    df["Salary"] = df["Salary"].fillna(median_salary)
+    print(f"\n--- After Cleaning Missing Salaries (Filled with median: {median_salary}) ---")
+    print(df)
+    # Grouping and Aggregation
+    dept_summary = df.groupby("Department").agg({
+        "Salary": ["mean", "max"],
+        "Experience_Yrs": "mean"
+    }).reset_index()
+    print("\n--- Department Salary & Experience Summary ---")
+    print(dept_summary)
+    return df
+# --- Part 2: Consuming REST APIs ---
+def fetch_public_api_data():
+    url = "https://jsonplaceholder.typicode.com/todos/1"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            payload = response.json()
+            print("\n--- REST API Response Successfully Fetched ---")
+            print(payload)
+        else:
+            print(f"Failed to fetch API. Status code: {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        print(f"API Request Error: {e}")
+# --- Part 3: Data Visualization ---
+def visualize_data(df):
+    sns.set_theme(style="whitegrid")
+    plt.figure(figsize=(8, 5))
+    # Bar plot using Seaborn
+    sns.barplot(x="Department", y="Salary", data=df, ci=None, palette="Blues_d")
+    plt.title("Average Salary by Department")
+    plt.xlabel("Department")
+    plt.ylabel("Salary ($)")
+    plt.show()
+if __name__ == "__main__":
+    cleaned_df = analyze_sample_dataset()
+    fetch_public_api_data()
+    visualize_data(cleaned_df)
